@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html>
-<head><title>Bienvenue</title></head>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenue sur Azitropy</title>
+</head>
 <body>
-    <h2>Entrez votre nom pour commencer le quiz :</h2>
+    <h1>Bienvenue sur le Quiz Infectieux</h1>
+    <p>Scannez le QR code ou accédez directement pour commencer le quiz.</p>
+    <img src="{{ url_for('afficher_qr') }}" alt="QR Code"><br><br>
     <form method="post">
-        <input type="text" name="nom" required>
+        <label for="nom">Entrez votre nom :</label>
+        <input type="text" id="nom" name="nom" required>
         <button type="submit">Commencer</button>
     </form>
-
-    <h3>Scannez le QR Code pour commencer le quiz</h3>
-    <!-- Affichage du QR Code -->
-    <img src="{{ url_for('afficher_qr') }}" alt="QR Code">
-
 </body>
 </html>
-

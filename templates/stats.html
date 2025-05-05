@@ -1,50 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Statistiques</title>
+    <meta charset="UTF-8">
+    <title>Résultats du Quiz</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h2>Résultats du quiz</h2>
+    <h1>Résultats</h1>
+
     {% for nom, data in data.items() %}
-        <h3>Réponses de {{ nom }}</h3>
+        <h3>{{ nom }}</h3>
         <ul>
             {% for i in range(8) %}
                 <li>
                     <strong>{{ questions[i] }}</strong><br>
-                    ✅ Réponse donnée :
-                    <span style="color: {{ 'green' if data['answers'][i] == correct[i] else 'red' }}">
-                        {{ data['answers'][i] or 'Non répondu' }}
-                    </span><br>
-                    📌 Bonne réponse : {{ correct[i] }}<br>
-                    📝 Explication : {{ explications[i] }}
+                    ➤ Réponse donnée : {{ data.answers[i] }}<br>
+                    ✅ Bonne réponse : {{ correct[i] }}<br>
+                    📘 Explication : {{ explications[i] }}
                 </li>
             {% endfor %}
         </ul>
+        <hr>
     {% endfor %}
 
-    <h2>Diagrammes</h2>
+    <h2>Diagrammes des réponses</h2>
     {% for i in range(8) %}
         <h3>{{ questions[i] }}</h3>
         <canvas id="chart{{ i }}" width="400" height="200"></canvas>
         <script>
             const ctx{{ i }} = document.getElementById('chart{{ i }}').getContext('2d');
-            const chart{{ i }} = new Chart(ctx{{ i }}, {
+            const counts{{ i }} = { A: 0, B: 0, C: 0, D: 0 };
+            {% for nom, data in data.items() %}
+                counts{{ i }}[`{{ data.answers[i] }}`]++;
+            {% endfor %}
+            new Chart(ctx{{ i }}, {
                 type: 'bar',
                 data: {
-                    labels: {{ choix[i]|map('slice', 0, 1)|list }},
+                    labels: ['A', 'B', 'C', 'D'],
                     datasets: [{
                         label: 'Nombre de réponses',
                         data: [
-                            {% for c in ['A', 'B', 'C', 'D'] %}
-                                {{ data.values()|map(attribute='answers')|map('getitem', i)|select('equalto', c)|list|length }},
-                            {% endfor %}
+                            counts{{ i }}.A,
+                            counts{{ i }}.B,
+                            counts{{ i }}.C,
+                            counts{{ i }}.D
                         ],
-                        backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800']
+                        backgroundColor: [
+                            '#3498db', '#e67e22', '#2ecc71', '#e74c3c'
+                        ]
                     }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
                 }
             });
         </script>
     {% endfor %}
 </body>
 </html>
+
