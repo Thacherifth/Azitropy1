@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Génération du QR code à chaque démarrage du serveur
 def generate_qr_code():
-    url = "https://azitropy1.onrender.com"  # Remplace par l'URL de ton application sur Render
+    url = "https://azitropy1.onrender.com/quiz/utilisateur"  # URL vers la page de quiz avec un nom par défaut
     qr = qrcode.QRCode(
         version=1,  # Taille du QR code (1 est le plus petit)
         error_correction=qrcode.constants.ERROR_CORRECT_L,  # Niveau de correction d'erreur
@@ -65,16 +65,23 @@ explications = [
 def accueil():
     return render_template('index.html')
 
+
 @app.route('/quiz/<nom>', methods=['GET', 'POST'])
 def quiz(nom):
     if request.method == 'POST':
+        # Récupérer le nom et les réponses
+        nom_utilisateur = request.form['nom']  # Récupérer le nom de l'utilisateur
         answers = [request.form.get(f'q{i}') for i in range(1, 9)]
-        reponses_utilisateurs[nom] = {
+
+        # Sauvegarder les réponses avec le nom de l'utilisateur
+        reponses_utilisateurs[nom_utilisateur] = {
             "time": datetime.now(),
             "answers": answers
         }
         return redirect(url_for('merci'))
+
     return render_template('quiz.html', nom=nom, questions=questions, choix=choix)
+
 
 @app.route('/merci')
 def merci():
@@ -105,11 +112,5 @@ def stats():
 def afficher_qr():
     return send_from_directory('static', 'qr_code.png')  # Affiche l'image du QR code
 
-#if __name__ == '__main__':
-    #app.run(debug=True)
-
-# Assure-toi que ton app écoute sur le bon port (par défaut 10000 sur Render)
-# Assure-toi que ton app écoute sur le bon port (par défaut 10000 sur Render)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
-
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))  # L'application écoute sur le port 10000

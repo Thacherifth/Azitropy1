@@ -2,23 +2,39 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz Infectieux</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Médical</title>
+    <link rel="stylesheet" href="static/styles.css">
 </head>
 <body>
-    <h1>Bonjour {{ nom }} !</h1>
-    <form method="post">
-        {% for i in range(questions|length) %}
-            <p><strong>{{ questions[i] }}</strong></p>
-            {% for option in choix[i] %}
-                <input type="radio" name="q{{ i+1 }}" value="{{ option[0] }}" required> {{ option }}<br>
-            {% endfor %}
+    <h1>Quiz Médical</h1>
+    <form method="POST" action="{{ url_for('quiz', nom=nom) }}">
+        <!-- Champ pour saisir le nom -->
+        <label for="nom">Nom:</label>
+        <input type="text" id="nom" name="nom" value="{{ nom }}" required><br><br>
+
+        <!-- Affichage des questions et choix -->
+        {% for i, question in enumerate(questions) %}
+            <p>{{ question }}</p>
+            <div>
+                {% for option in choix[i] %}
+                    <input type="radio" id="q{{ loop.index }}" name="q{{ loop.index0 }}" value="{{ option[0] }}">
+                    <label for="q{{ loop.index }}">{{ option }}</label><br>
+                {% endfor %}
+            </div>
+            <br>
         {% endfor %}
-        <br>
-        <button type="submit">Envoyer</button>
+
+        <!-- Bouton pour envoyer les réponses -->
+        <button type="submit">Envoyer vos réponses</button>
     </form>
-    <hr>
-    <form action="{{ url_for('stats') }}" method="get">
-        <button type="submit">Voir les résultats (réservé à pr.Achour)</button>
+
+    <!-- Bouton pour voir les statistiques -->
+    <form method="GET" action="{{ url_for('stats') }}">
+        <button type="submit">Voir les statistiques</button>
     </form>
+
+    <br>
+    <a href="{{ url_for('accueil') }}">Retour à la page d'accueil</a>
 </body>
 </html>
