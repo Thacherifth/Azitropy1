@@ -107,3 +107,7 @@ def afficher_qr():
 
 #if __name__ == '__main__':
     #app.run(debug=True)
+
+# Assure-toi que ton app écoute sur le bon port (par défaut 10000 sur Render)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
