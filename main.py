@@ -105,5 +105,5 @@ def stats():
 def afficher_qr():
     return send_from_directory('static', 'qr_code.png')  # Affiche l'image du QR code
 
-if __name__ == '__main__':
-    app.run(debug=True)
+#if __name__ == '__main__':
+    #app.run(debug=True)
