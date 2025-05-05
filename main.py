@@ -1,32 +1,30 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+# main.py
+from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime, timedelta
 import qrcode
 import os
 
 app = Flask(__name__)
 
-# Génération du QR code à chaque démarrage du serveur
+# Génération du QR code (mais ne pas l'afficher sur le site)
 def generate_qr_code():
-    url = "https://azitropy1.onrender.com/quiz/utilisateur"  # URL vers la page de quiz avec un nom par défaut
+    url = "https://azitropy1.onrender.com"
     qr = qrcode.QRCode(
-        version=1,  # Taille du QR code (1 est le plus petit)
-        error_correction=qrcode.constants.ERROR_CORRECT_L,  # Niveau de correction d'erreur
-        box_size=10,  # Taille des "cases" du QR code
-        border=4,  # Taille de la bordure
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
     )
     qr.add_data(url)
     qr.make(fit=True)
-
     img = qr.make_image(fill='black', back_color='white')
-    img.save("static/qr_code.png")  # Sauvegarde l'image du QR code dans un dossier 'static'
+    os.makedirs("static", exist_ok=True)
+    img.save("static/qr_code.png")
 
-# Appel de la fonction pour générer le QR code au démarrage du serveur
 generate_qr_code()
 
-# Stockage temporaire en mémoire
-reponses_utilisateurs = {}  # { "Nom": {"time": datetime, "answers": [A, B, C, ...]} }
+reponses_utilisateurs = {}
 
-# Questions, réponses correctes et explications
 questions = [
     "1. Quel est l'agent causal de la tuberculose ?",
     "2. Quel antibiotique est utilisé en première ligne contre le streptocoque A ?",
@@ -62,26 +60,21 @@ explications = [
 ]
 
 @app.route('/', methods=['GET', 'POST'])
-def accueil():
-    return render_template('index.html')
-
-
-@app.route('/quiz/<nom>', methods=['GET', 'POST'])
-def quiz(nom):
+def quiz():
     if request.method == 'POST':
-        # Récupérer le nom et les réponses
-        nom_utilisateur = request.form['nom']  # Récupérer le nom de l'utilisateur
+        nom = request.form.get('nom')
+        if not nom:
+            return "Veuillez entrer votre nom."
+        maintenant = datetime.now()
+        if nom in reponses_utilisateurs and maintenant - reponses_utilisateurs[nom]["time"] < timedelta(hours=2):
+            return "Tu as déjà participé."
         answers = [request.form.get(f'q{i}') for i in range(1, 9)]
-
-        # Sauvegarder les réponses avec le nom de l'utilisateur
-        reponses_utilisateurs[nom_utilisateur] = {
-            "time": datetime.now(),
+        reponses_utilisateurs[nom] = {
+            "time": maintenant,
             "answers": answers
         }
         return redirect(url_for('merci'))
-
-    return render_template('quiz.html', nom=nom, questions=questions, choix=choix)
-
+    return render_template('index.html', questions=questions, choix=choix)
 
 @app.route('/merci')
 def merci():
@@ -107,10 +100,3 @@ def stats():
             choix=choix
         )
     return render_template('login_stats.html')
-
-@app.route('/qr')
-def afficher_qr():
-    return send_from_directory('static', 'qr_code.png')  # Affiche l'image du QR code
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))  # L'application écoute sur le port 10000

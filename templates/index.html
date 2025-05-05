@@ -1,17 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Bienvenue sur Azitropy</title>
+  <meta charset="UTF-8">
+  <title>Quiz Infectieux</title>
 </head>
 <body>
-    <h1>Bienvenue sur le Quiz Infectieux</h1>
-    <p>Scannez le QR code ou accédez directement pour commencer le quiz.</p>
-    <img src="{{ url_for('afficher_qr') }}" alt="QR Code"><br><br>
-    <form method="post">
-        <label for="nom">Entrez votre nom :</label>
-        <input type="text" id="nom" name="nom" required>
-        <button type="submit">Commencer</button>
-    </form>
+  <h1>Quiz sur les maladies infectieuses</h1>
+  <form method="post">
+    <label for="nom">Votre nom :</label>
+    <input type="text" name="nom" id="nom" required><br><br>
+
+    {% for i in range(questions|length) %}
+      <p>{{ questions[i] }}</p>
+      {% for option in choix[i] %}
+        <label><input type="radio" name="q{{ i+1 }}" value="{{ option[0] }}" required> {{ option }}</label><br>
+      {% endfor %}
+      <br>
+    {% endfor %}
+
+    <button type="submit">Envoyer vos réponses</button>
+  </form>
+
+  <br><a href="/stats">Voir les statistiques</a>
 </body>
 </html>
