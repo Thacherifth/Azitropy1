@@ -2,67 +2,48 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Statistiques</title>
+    <title>Résultats du Quiz</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .correct {
-            color: green;
-            font-weight: bold;
-        }
-        .incorrect {
-            color: red;
-            font-weight: bold;
-        }
-        .question-container {
-            margin-bottom: 30px;
-        }
-    </style>
 </head>
 <body>
-    <h1>Statistiques du Quiz</h1>
+    <h1>Résultats</h1>
 
     {% for nom, data in data.items() %}
-        <div class="question-container">
-            <h2>{{ nom }}</h2>
-            <ul>
-                {% for i in range(8) %}
-                    <li>
-                        <strong>{{ questions[i] }}</strong><br>
-                        <!-- Affichage de la réponse donnée avec la couleur -->
-                        <span class="{% if data.answers[i] == correct[i] %}correct{% else %}incorrect{% endif %}">
-                            Réponse donnée : {{ data.answers[i] }}
-                        </span><br>
-                        <!-- Affichage de la bonne réponse avec explication -->
-                        <span class="correct">
-                            ✅ Bonne réponse : {{ correct[i] }}<br>
-                        </span>
-                        <span>
-                            📘 Explication : {{ explications[i] }}
-                        </span><br>
-                        <canvas id="chart{{ i }}{{ loop.index }}" width="400" height="200"></canvas><br><br>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <script>
-            // Affichage des diagrammes pour chaque question
-            const ctx{{ loop.index }} = document.getElementById('chart{{ i }}{{ loop.index }}').getContext('2d');
-            const counts{{ loop.index }} = { A: 0, B: 0, C: 0, D: 0 };
-            {% for nom, data in data.items() %}
-                counts{{ loop.index }}[`{{ data.answers[i] }}`]++;  // Compte les réponses pour chaque question
+        <h3>{{ nom }}</h3>
+        <ul>
+            {% for i in range(8) %}
+                <li>
+                    <strong>{{ questions[i] }}</strong><br>
+                    ➤ Réponse donnée : {{ data.answers[i] }}<br>
+                    ✅ Bonne réponse : {{ correct[i] }}<br>
+                    📘 Explication : {{ explications[i] }}
+                </li>
             {% endfor %}
-            new Chart(ctx{{ loop.index }}, {
+        </ul>
+        <hr>
+    {% endfor %}
+
+    <h2>Diagrammes des réponses</h2>
+    {% for i in range(8) %}
+        <h3>{{ questions[i] }}</h3>
+        <canvas id="chart{{ i }}" width="400" height="200"></canvas>
+        <script>
+            const ctx{{ i }} = document.getElementById('chart{{ i }}').getContext('2d');
+            const counts{{ i }} = { A: 0, B: 0, C: 0, D: 0 };
+            {% for nom, data in data.items() %}
+                counts{{ i }}[`{{ data.answers[i] }}`]++;
+            {% endfor %}
+            new Chart(ctx{{ i }}, {
                 type: 'bar',
                 data: {
                     labels: ['A', 'B', 'C', 'D'],
                     datasets: [{
                         label: 'Nombre de réponses',
                         data: [
-                            counts{{ loop.index }}.A,
-                            counts{{ loop.index }}.B,
-                            counts{{ loop.index }}.C,
-                            counts{{ loop.index }}.D
+                            counts{{ i }}.A,
+                            counts{{ i }}.B,
+                            counts{{ i }}.C,
+                            counts{{ i }}.D
                         ],
                         backgroundColor: [
                             '#3498db', '#e67e22', '#2ecc71', '#e74c3c'
@@ -76,7 +57,7 @@
                 }
             });
         </script>
-
     {% endfor %}
 </body>
 </html>
+
