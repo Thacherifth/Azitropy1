@@ -1,8 +1,27 @@
-# main.py
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from datetime import datetime, timedelta
+import qrcode
+import os
 
 app = Flask(__name__)
+
+# Génération du QR code à chaque démarrage du serveur
+def generate_qr_code():
+    url = "https://azitropy1.onrender.com"  # Remplace par l'URL de ton application sur Render
+    qr = qrcode.QRCode(
+        version=1,  # Taille du QR code (1 est le plus petit)
+        error_correction=qrcode.constants.ERROR_CORRECT_L,  # Niveau de correction d'erreur
+        box_size=10,  # Taille des "cases" du QR code
+        border=4,  # Taille de la bordure
+    )
+    qr.add_data(url)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill='black', back_color='white')
+    img.save("static/qr_code.png")  # Sauvegarde l'image du QR code dans un dossier 'static'
+
+# Appel de la fonction pour générer le QR code au démarrage du serveur
+generate_qr_code()
 
 # Stockage temporaire en mémoire
 reponses_utilisateurs = {}  # { "Nom": {"time": datetime, "answers": [A, B, C, ...]} }
@@ -44,13 +63,6 @@ explications = [
 
 @app.route('/', methods=['GET', 'POST'])
 def accueil():
-    if request.method == 'POST':
-        nom = request.form['nom']
-        maintenant = datetime.now()
-        if nom in reponses_utilisateurs:
-            if maintenant - reponses_utilisateurs[nom]["time"] < timedelta(hours=2):
-                return "Tu as déjà participé."
-        return redirect(url_for('quiz', nom=nom))
     return render_template('index.html')
 
 @app.route('/quiz/<nom>', methods=['GET', 'POST'])
@@ -88,6 +100,10 @@ def stats():
             choix=choix
         )
     return render_template('login_stats.html')
+
+@app.route('/qr')
+def afficher_qr():
+    return send_from_directory('static', 'qr_code.png')  # Affiche l'image du QR code
 
 if __name__ == '__main__':
     app.run(debug=True)
