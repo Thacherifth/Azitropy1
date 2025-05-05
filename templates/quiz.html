@@ -7,8 +7,9 @@
         {% for i in range(questions|length) %}
             <p><strong>{{ questions[i] }}</strong></p>
             {% for c in choix[i] %}
-                <input type="radio" name="q{{ i+1 }}" value="{{ c[0] }}" required> {{ c }}<br>
+                <input type="radio" name="q{{ i+1 }}" value="{{ c[0] }}" required> {{ c[3:] }}<br>
             {% endfor %}
+
             <hr>
         {% endfor %}
         <button type="submit">Envoyer</button>
