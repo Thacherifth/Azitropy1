@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Quiz Infectieux</title></head>
+<body>
+    <h2>Bonjour {{ nom }} ! Répondez aux questions :</h2>
+    <form method="post">
+        {% for i in range(questions|length) %}
+            <p><strong>{{ questions[i] }}</strong></p>
+            {% for c in choix[i] %}
+                <input type="radio" name="q{{ i+1 }}" value="{{ c[0] }}" required> {{ c }}<br>
+            {% endfor %}
+            <hr>
+        {% endfor %}
+        <button type="submit">Envoyer</button>
+    </form>
+</body>
+</html>
